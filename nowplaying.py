@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from spotipy.oauth2 import SpotifyOAuth
 from twikit import Client
 
-client = Client(language='ja')
+client = Client(language="ja",user_agent='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36')
 # ログイン情報を cookies.json から読み込む
 client.load_cookies("cookies.json")
 
@@ -45,8 +45,8 @@ def get_current_track():
 
 # 現在再生中の曲をツイート
 async def tweet_nowPlaying(track_name, artist_name, track_url):
-    # tweet = f"🎵Now Playing: {track_name} by {artist_name} #NowPlaying\n{track_url}".
-    tweet = f"{track_name} #NowPlaying\n{track_url}"
+    tweet = f"🎵Now Playing: {track_name} by {artist_name} #NowPlaying\n{track_url}"
+    # tweet = f"{track_name} #NowPlaying\n{track_url}"
     try:
         await client.create_tweet(tweet)
         print(f"ツイートしました: {tweet}")
@@ -55,11 +55,13 @@ async def tweet_nowPlaying(track_name, artist_name, track_url):
 
 
 async def main():
-    global last_track_id
-    track_name, artist_name, track_id, track_url = get_current_track()
-    if track_id and track_id != last_track_id:
-        await tweet_nowPlaying(track_name, artist_name, track_url)
-        last_track_id = track_id
+    while True:
+        global last_track_id
+        track_name, artist_name, track_id, track_url = get_current_track()
+        if track_id and track_id != last_track_id:
+            await tweet_nowPlaying(track_name, artist_name, track_url)
+            last_track_id = track_id
+        await asyncio.sleep(30)
 
 if __name__ == "__main__":
   asyncio.run(main())
